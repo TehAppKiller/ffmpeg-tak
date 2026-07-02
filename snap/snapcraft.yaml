@@ -43,7 +43,7 @@ slots:
   ffmpeg:
     interface: content
     read:
-      - "."
+      - /
 
 apps:
   ffmpeg:
@@ -87,83 +87,90 @@ apps:
       
 parts:
   ffmpeg:
-    plugin: autotools
-    autotools-configure-parameters:
-      - --prefix=/usr
-      # general
-      - --enable-gpl
-      - --disable-stripping
-      - --disable-pocketsphinx
-      - --disable-libcaca
-      - --disable-libmfx
-      - --disable-omx
-      - --enable-gnutls
-      - --enable-libaom
-      - --enable-libass
-      - --enable-libbs2b
-      - --enable-libcdio
-      - --enable-libcodec2
-      - --enable-libdav1d
-      - --enable-libflite
-      - --enable-libfontconfig
-      - --enable-libfreetype
-      - --enable-libfribidi
-      - --enable-libglslang
-      - --enable-libgme
-      - --enable-libgsm
-      - --enable-libharfbuzz
-      - --enable-libmp3lame
-      - --enable-libmysofa
-      - --enable-libopenjpeg
-      - --enable-libopenmpt
-      - --enable-libopus
-      - --enable-librubberband
-      - --enable-libshine
-      - --enable-libsnappy
-      - --enable-libsoxr
-      - --enable-libspeex
-      - --enable-libtheora
-      - --enable-libtwolame
-      - --enable-libvidstab
-      - --enable-libvorbis
-      - --enable-libvpx
-      - --enable-libwebp
-      - --enable-libx265
-      - --enable-libxml2
-      - --enable-libxvid
-      - --enable-libzimg
-      - --enable-openal
-      - --enable-opencl
-      - --enable-opengl
-      - --disable-sndio
-      - --enable-libvpl
-      - --enable-libdc1394
-      - --enable-libdrm
-      - --enable-libiec61883
-      - --enable-chromaprint
-      - --enable-frei0r
-      - --enable-ladspa
-      - --enable-libbluray
-      - --enable-libdvdnav
-      - --enable-libdvdread
-      - --enable-libjack
-      - --enable-libjxl
-      - --enable-libpulse
-      - --enable-librabbitmq
-      - --enable-librist
-      - --enable-libsrt
-      - --enable-libssh
-      - --enable-libsvtav1
-      - --enable-libx264
-      - --enable-libzmq
-      - --enable-libzvbi
-      - --enable-lv2
-      - --enable-sdl2
-      - --enable-libplacebo
-      - --enable-librav1e
-      - --enable-librsvg
-      - --enable-shared
     source: .
+    plugin: autotools
+    override-pull: |
+      
+      if [ "$CRAFT_ARCH_BUILD_FOR" = "amd64" ]; then
+        EXTRA="--enable-libvpl"
+      fi
+      
+      ./configure \
+      --prefix=/usr \
+      --enable-gpl \
+      --disable-stripping \
+      --disable-pocketsphinx \
+      --disable-libcaca \
+      --disable-libmfx \
+      --disable-omx \
+      --enable-gnutls \
+      --enable-libaom \
+      --enable-libass \
+      --enable-libbs2b \
+      --enable-libcdio \
+      --enable-libcodec2 \
+      --enable-libdav1d \
+      --enable-libflite \
+      --enable-libfontconfig \
+      --enable-libfreetype \
+      --enable-libfribidi \
+      --enable-libglslang \
+      --enable-libgme \
+      --enable-libgsm \
+      --enable-libharfbuzz \
+      --enable-libmp3lame \
+      --enable-libmysofa \
+      --enable-libopenjpeg \
+      --enable-libopenmpt \
+      --enable-libopus \
+      --enable-librubberband \
+      --enable-libshine \
+      --enable-libsnappy \
+      --enable-libsoxr \
+      --enable-libspeex \
+      --enable-libtheora \
+      --enable-libtwolame \
+      --enable-libvidstab \
+      --enable-libvorbis \
+      --enable-libvpx \
+      --enable-libwebp \
+      --enable-libx265 \
+      --enable-libxml2 \
+      --enable-libxvid \
+      --enable-libzimg \
+      --enable-openal \
+      --enable-opencl \
+      --enable-opengl \
+      --disable-sndio \
+      --enable-libdc1394 \
+      --enable-libdrm \
+      --enable-libiec61883 \
+      --enable-chromaprint \
+      --enable-frei0r \
+      --enable-ladspa \
+      --enable-libbluray \
+      --enable-libdvdnav \
+      --enable-libdvdread \
+      --enable-libjack \
+      --enable-libjxl \
+      --enable-libpulse \
+      --enable-librabbitmq \
+      --enable-librist \
+      --enable-libsrt \
+      --enable-libssh \
+      --enable-libsvtav1 \
+      --enable-libx264 \
+      --enable-libzmq \
+      --enable-libzvbi \
+      --enable-lv2 \
+      --enable-sdl2 \
+      --enable-libplacebo \
+      --enable-librav1e \
+      --enable-librsvg \
+      --enable-shared ${EXTRA}
+      
+      make -j $(nproc)
+      make DESTDIR="$CRAFT_PART_INSTALL" install
     override-pull: |
       
       craftctl default
@@ -269,7 +276,6 @@ parts:
       - libvidstab-dev
       - libvo-amrwbenc-dev
       - libvorbis-dev
-      - libvpl-dev
       - libvpx-dev
       - libvulkan-dev
       - libwebp-dev
@@ -289,6 +295,8 @@ parts:
       - zlib1g-dev
       - flite1-dev
       - glslang-dev
+      - on amd64:
+        - libvpl-dev
     prime:
       - usr/bin/ffmpeg
       - usr/bin/ffplay
@@ -401,7 +409,6 @@ parts:
       - libvorbis0a
       - libvorbisenc2
       - libvorbisfile3
-      - libvpl2
       - libvpx12
       - libvulkan1
       - libwebp7
@@ -429,4 +436,6 @@ parts:
       - libxfixes3
       - libxrender1
       - libxv1
+      - on amd64:
+        - libvpl2
       
