@@ -91,9 +91,10 @@ parts:
     plugin: autotools
     override-build: |
       
-      if [ "$CRAFT_ARCH_BUILD_FOR" = "amd64" ]; then
-        EXTRA="--enable-libvpl"
-      fi
+      case "$CRAFT_ARCH_BUILD_FOR" in
+        amd64) EXTRA="--enable-libvpl" ;;
+        *) EXTRA="" ;;
+      esac
       
       ./configure \
       --prefix=/usr \
