@@ -89,7 +89,7 @@ parts:
   ffmpeg:
     source: .
     plugin: autotools
-    override-pull: |
+    override-build: |
       
       if [ "$CRAFT_ARCH_BUILD_FOR" = "amd64" ]; then
         EXTRA="--enable-libvpl"
