@@ -1,0 +1,432 @@
+name: ffmpeg-tak
+title: ffmpeg-tak
+summary: UnOfficial release of FFMPEG
+description: |
+  **FFmpeg is a complete, cross-platform solution to record, convert and stream audio and video.**
+  FFmpeg is the leading multimedia framework, able to decode, encode, transcode, mux, demux, stream, filter and play pretty much anything that humans and machines have created. It supports the most obscure ancient formats up to the cutting edge. No matter if they were designed by some standards committee, the community or a corporation. It is also highly portable: FFmpeg compiles, runs, and passes our testing infrastructure FATE across Linux, Mac OS X, Microsoft Windows, the BSDs, Solaris, etc. under a wide variety of build environments, machine architectures, and configurations.
+
+  * It contains libavcodec, libavutil, libavformat, libavfilter, libavdevice, libswscale and libswresample which can be used by applications.
+  * As well as ffmpeg, ffplay and ffprobe which can be used by end users for transcoding and playing.
+  * See https://ffmpeg.org/documentation.html for more details.
+
+  **FFMPEG Release**
+  * ffmpeg, ffplay and ffprobe can be called directly
+  * Libraries (and other files) available on 'ffmpeg' slot.
+
+  **Post install commands required for apps to access media folders different than 'home' :**
+
+  sudo snap connect ffmpeg-tak:removable-media
+  
+  **!!! Files can only be read from a directory owned by the user launching the app !!!**
+  
+  This is due to current behavior and restrictions of snaps by Canonical.
+website: https://www.ffmpeg.org
+source-code: https://github.com/TehAppKiller/ffmpeg-tak
+issues: https://github.com/TehAppKiller/ffmpeg-tak/issues
+contact: ['mailto:tehappkiller@proton.me', 'https://mastodon.social/@TehAppKiller']
+donation: https://whydonate.com/en/fundraising/help-teh-devz
+license: MIT
+icon: icon.svg
+grade: stable
+confinement: strict
+base: core26
+adopt-info: ffmpeg
+platforms:
+  amd64:
+  arm64:
+  armhf:
+  ppc64el:
+  s390x:
+  riscv64:
+  
+slots:
+  ffmpeg:
+    interface: content
+    read:
+      - "."
+
+apps:
+  ffmpeg:
+    command: usr/bin/ffmpeg
+    extensions: [gpu]
+    command-chain:
+      - snap/command-chain/gpu-2604-wrapper
+    plugs:
+      - network
+      - network-bind
+      - removable-media
+      - home
+    environment:
+      LD_LIBRARY_PATH: $SNAP/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/pulseaudio:$LD_LIBRARY_PATH
+      
+  ffplay:
+    command: usr/bin/ffplay
+    extensions: [gpu]
+    command-chain:
+      - snap/command-chain/gpu-2604-wrapper
+    plugs:
+      - network
+      - network-bind
+      - removable-media
+      - home
+    environment:
+      LD_LIBRARY_PATH: $SNAP/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/pulseaudio:$SNAP/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/sdl2-classic:$LD_LIBRARY_PATH
+       
+  ffprobe:
+    command: usr/bin/ffprobe
+    extensions: [gpu]
+    command-chain:
+      - snap/command-chain/gpu-2604-wrapper
+    plugs:
+      - network
+      - network-bind
+      - removable-media
+      - home
+    environment:
+      LD_LIBRARY_PATH: $SNAP/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/pulseaudio:$LD_LIBRARY_PATH
+      
+parts:
+  ffmpeg:
+    plugin: autotools
+    autotools-configure-parameters:
+      - --prefix=/usr
+      # general
+      - --enable-gpl
+      - --disable-stripping
+      - --disable-pocketsphinx
+      - --disable-libcaca
+      - --disable-libmfx
+      - --disable-omx
+      - --enable-gnutls
+      - --enable-libaom
+      - --enable-libass
+      - --enable-libbs2b
+      - --enable-libcdio
+      - --enable-libcodec2
+      - --enable-libdav1d
+      - --enable-libflite
+      - --enable-libfontconfig
+      - --enable-libfreetype
+      - --enable-libfribidi
+      - --enable-libglslang
+      - --enable-libgme
+      - --enable-libgsm
+      - --enable-libharfbuzz
+      - --enable-libmp3lame
+      - --enable-libmysofa
+      - --enable-libopenjpeg
+      - --enable-libopenmpt
+      - --enable-libopus
+      - --enable-librubberband
+      - --enable-libshine
+      - --enable-libsnappy
+      - --enable-libsoxr
+      - --enable-libspeex
+      - --enable-libtheora
+      - --enable-libtwolame
+      - --enable-libvidstab
+      - --enable-libvorbis
+      - --enable-libvpx
+      - --enable-libwebp
+      - --enable-libx265
+      - --enable-libxml2
+      - --enable-libxvid
+      - --enable-libzimg
+      - --enable-openal
+      - --enable-opencl
+      - --enable-opengl
+      - --disable-sndio
+      - --enable-libvpl
+      - --enable-libdc1394
+      - --enable-libdrm
+      - --enable-libiec61883
+      - --enable-chromaprint
+      - --enable-frei0r
+      - --enable-ladspa
+      - --enable-libbluray
+      - --enable-libdvdnav
+      - --enable-libdvdread
+      - --enable-libjack
+      - --enable-libjxl
+      - --enable-libpulse
+      - --enable-librabbitmq
+      - --enable-librist
+      - --enable-libsrt
+      - --enable-libssh
+      - --enable-libsvtav1
+      - --enable-libx264
+      - --enable-libzmq
+      - --enable-libzvbi
+      - --enable-lv2
+      - --enable-sdl2
+      - --enable-libplacebo
+      - --enable-librav1e
+      - --enable-librsvg
+      - --enable-shared
+    source: .
+    override-pull: |
+      
+      craftctl default
+
+      # Get Last Source Tag version and Check Snap (with same Source) version
+      src_version=$(git ls-remote --tags --sort='version:refname' https://github.com/FFmpeg/FFmpeg.git | grep -e 'n[0-9]*\.[0-9]*\.[0-9]*$' -e 'n[0-9]*\.[0-9]*$' | tail -n 1 | sed 's/.*\/n//');
+      echo "Source last tag: ${src_version}"
+      snap_last_version=$(curl -sL -H "Snap-Device-Series: 16" "https://api.snapcraft.io/v2/snaps/info/ffmpeg-tak?architecture=${CRAFT_ARCH_BUILD_FOR}&fields=version" | sed -nre "s/^.*\"stable\"\,\"track\"\:\"latest\"\}\,\"version\"\:\"([^\"]*)\".*/\1/p");
+      echo "Snap last version: ${snap_last_version}"
+      snap_build_with_same_version=$(echo $snap_last_version | sed -nre "s/^($src_version.*).*/\1/p");
+      # Same version ?
+      if [ -z "$snap_build_with_same_version" ]
+      then
+        new_snap_version="${src_version}";
+      else
+        # Get snap build version
+        snap_build=$(echo $snap_build_with_same_version | sed -nre 's/^.*-v([0-9]*).*/\1/p');
+        # Already a build version ?
+        if [ -z "$snap_build" ]
+        then
+          # init @v2
+          new_snap_build="2";
+        else
+          # increment @v+1
+          new_snap_build=$(($snap_build+1));
+        fi
+
+        new_snap_version="${src_version}-v${new_snap_build}";
+      fi
+
+      craftctl set version=$new_snap_version
+
+      # Pull
+      rm -rf $CRAFT_PART_SRC/{,.[!.],..?}*
+      git clone -b n${src_version} --depth=1 https://github.com/FFmpeg/FFmpeg.git .
+    build-packages:
+      - curl
+      - git
+      - nasm
+      - frei0r-plugins-dev
+      - pkg-config
+      - libgnutls28-dev
+      - ladspa-sdk
+      - libaom-dev
+      - libaribb24-dev
+      - libass-dev
+      - libbluray-dev
+      - libbs2b-dev
+      - libbz2-dev
+      - libcdio-paranoia-dev
+      - libchromaprint-dev
+      - libcodec2-dev
+      - libdav1d-dev
+      - libdvdnav-dev
+      - libdvdread-dev
+      - libdc1394-dev
+      - libdrm-dev
+      - libffmpeg-nvenc-dev
+      - libfontconfig-dev
+      - libfreetype-dev
+      - libfribidi-dev
+      - libgl-dev
+      - libgme-dev
+      - libgnutls28-dev
+      - libgsm1-dev
+      - libharfbuzz-dev
+      - libiec61883-dev
+      - libavc1394-dev
+      - libjack-jackd2-dev
+      - libjxl-dev
+      - liblilv-dev
+      - liblzma-dev
+      - libmp3lame-dev
+      - libmysofa-dev
+      - libopenal-dev
+      - libopencore-amrnb-dev
+      - libopencore-amrwb-dev
+      - libopenjp2-7-dev
+      - libopenmpt-dev
+      - libopus-dev
+      - libplacebo-dev
+      - libpulse-dev
+      - librabbitmq-dev
+      - librav1e-dev
+      - librist-dev
+      - librubberband-dev
+      - librsvg2-dev
+      - libsctp-dev
+      - libsdl2-dev
+      - libshine-dev
+      - libsmbclient-dev
+      - libsnappy-dev
+      - libsoxr-dev
+      - libspeex-dev
+      - libsrt-gnutls-dev
+      - libssh-dev
+      - libsvtav1enc-dev
+      - libtesseract-dev
+      - libtheora-dev
+      - libtwolame-dev
+      - libva-dev
+      - libvdpau-dev
+      - libvidstab-dev
+      - libvo-amrwbenc-dev
+      - libvorbis-dev
+      - libvpl-dev
+      - libvpx-dev
+      - libvulkan-dev
+      - libwebp-dev
+      - libx264-dev
+      - libx265-dev
+      - libxcb-shape0-dev
+      - libxcb-shm0-dev
+      - libxcb-xfixes0-dev
+      - libxml2-dev
+      - libxv-dev
+      - libxvidcore-dev
+      - libzimg-dev
+      - libzmq3-dev
+      - libzvbi-dev
+      - ocl-icd-opencl-dev
+      - texinfo
+      - zlib1g-dev
+      - flite1-dev
+      - glslang-dev
+    prime:
+      - usr/bin/ffmpeg
+      - usr/bin/ffplay
+      - usr/bin/ffprobe
+      - usr/lib/libavcodec.so*
+      - usr/lib/libavdevice.so*
+      - usr/lib/libavfilter.so*
+      - usr/lib/libavformat.so*
+      - usr/lib/libavutil.so*
+      - usr/lib/libswresample.so*
+      - usr/lib/libswscale.so*
+
+  deps:
+    plugin: nil
+    source: .
+    stage-packages:
+      - curl
+      - libflac14
+      - ocl-icd-libopencl1
+      - libsvtav1enc2
+      - libaom3
+      - libasound2t64
+      - libass9
+      - libasyncns0
+      - libavc1394-0
+      - libbluray3
+      - libbs2b0
+      - libcairo-gobject2
+      - libcairo2
+      - libcdio19t64
+      - libcdio-cdda2t64
+      - libcdio-paranoia2t64
+      - libchromaprint1
+      - libcjson1
+      - libcodec2-1.2
+      - libdatrie1
+      - libdav1d7
+      - libdc1394-25
+      - libdvdnav4
+      - libdvdread8t64
+      - libfftw3-double3
+      - libflite1
+      - libfontconfig1
+      - libfribidi0
+      - libgdk-pixbuf-2.0-0
+      - libglycin-2-0
+      - libgme0
+      - libgomp1
+      - libgraphite2-3
+      - libgsm1
+      - libharfbuzz0b
+      - libhwy1t64
+      - libiec61883-0
+      - libjack-jackd2-0
+      - libjxl0.11
+      - libjxl0.11
+      - libjxl0.11
+      - liblcms2-2
+      - liblilv-0-0
+      - libmbedcrypto16
+      - libmp3lame0
+      - libmpg123-0t64
+      - libmysofa1
+      - libnorm1t64
+      - libnuma1
+      - libogg0
+      - libopenal1
+      - libopenjp2-7
+      - libopenmpt0t64
+      - libopus0
+      - libpango-1.0-0
+      - libpangocairo-1.0-0
+      - libpangoft2-1.0-0
+      - libpgm-5.3-0t64
+      - libpixman-1-0
+      - libplacebo360
+      - libpulse0
+      - librabbitmq4
+      - librav1e0.8
+      - libraw1394-11
+      - librist4
+      - libavc1394-0
+      - librsvg2-2
+      - librubberband3
+      - libsamplerate0
+      - libserd-0-0
+      - libsharpyuv0
+      - libshine3
+      - libsnappy1v5
+      - libsndfile1
+      - libsodium23
+      - libsord-0-0
+      - libsoxr0
+      - libspeex1
+      - libsratom-0-0
+      - libsrt1.5-gnutls
+      - libssh-4
+      - libthai0
+      - libtheoradec2
+      - libtheoraenc2
+      - libtwolame0
+      - libudfread3
+      - libunibreak6
+      - libusb-1.0-0
+      - libva-drm2
+      - libva-x11-2
+      - libva2
+      - libvdpau1
+      - libvidstab1.1
+      - libvorbis0a
+      - libvorbisenc2
+      - libvorbisfile3
+      - libvpl2
+      - libvpx12
+      - libvulkan1
+      - libwebp7
+      - libwebpmux3
+      - libx264-165
+      - libx265-215
+      - libxcb-dri3-0
+      - libxcb-render0
+      - libxcb-shape0
+      - libxcb-shm0
+      - libxcb-xfixes0
+      - libxcb1
+      - libxml2-16
+      - libxvidcore4
+      - libzimg2
+      - libzix-0-0
+      - libzmq5
+      - libzvbi0t64
+      - libsdl2-classic
+      - libx11-xcb1
+      - libx11-6
+      - libxau6
+      - libxdmcp6
+      - libxext6
+      - libxfixes3
+      - libxrender1
+      - libxv1
+      
