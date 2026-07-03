@@ -91,6 +91,8 @@ parts:
     plugin: autotools
     override-build: |
       
+      craftctl default
+      
       case "$CRAFT_ARCH_BUILD_FOR" in
         amd64) EXTRA="--enable-libvpl" ;;
         *) EXTRA="" ;;
