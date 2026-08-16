@@ -103,7 +103,6 @@ parts:
       --disable-pocketsphinx \
       --disable-libcaca \
       --disable-libmfx \
-      --disable-omx \
       --enable-gnutls \
       --enable-libaom \
       --enable-libass \
