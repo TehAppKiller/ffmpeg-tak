@@ -12,6 +12,7 @@ description: |
   **FFMPEG Release**
   * ffmpeg, ffplay and ffprobe can be called directly
   * Libraries (and other files) available on 'ffmpeg' slot.
+  * 'mesa-2604' snap is required as dependency.
 
   **Post install commands required for apps to access media folders different than 'home' :**
 
@@ -20,6 +21,8 @@ description: |
   **!!! Files can only be read from a directory owned by the user launching the app !!!**
   
   This is due to current behavior and restrictions of snaps by Canonical.
+  
+  **!!! RISCV Candidate channel is reserved for RISCV w/o RVA23 until a dedicated channel-branch is made // Based on Core24 // 'mesa-2404' snap is required as dependency. !!!**
 website: https://www.ffmpeg.org
 source-code: https://github.com/TehAppKiller/ffmpeg-tak
 issues: https://github.com/TehAppKiller/ffmpeg-tak/issues
@@ -114,7 +117,6 @@ parts:
       --enable-libfontconfig \
       --enable-libfreetype \
       --enable-libfribidi \
-      --enable-libglslang \
       --enable-libgme \
       --enable-libgsm \
       --enable-libharfbuzz \
@@ -167,6 +169,8 @@ parts:
       --enable-libplacebo \
       --enable-librav1e \
       --enable-librsvg \
+      --enable-libonnxruntime \
+      --extra-cflags="-I/usr/include/onnxruntime" \
       --enable-shared ${EXTRA}
       
       make -j $(nproc)
@@ -294,7 +298,7 @@ parts:
       - texinfo
       - zlib1g-dev
       - flite1-dev
-      - glslang-dev
+      - libonnxruntime-dev
       - on amd64:
         - libvpl-dev
     prime:
@@ -436,6 +440,7 @@ parts:
       - libxfixes3
       - libxrender1
       - libxv1
+      - libonnxruntime1.23
       - on amd64:
         - libvpl2
       
